@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% load staticfiles %}
+<link href="{% static "jquery.wijmo-pro.all.3.20131.3.min.css" %}" rel="stylesheet" media="screen">
+<link href="{% static "jquery.wijmo.wijspread.1.20131.1.css" %}" rel="stylesheet" media="screen">
+<link rel="stylesheet" href="{% static "jquery-wijmo.css" %}">
+<script src="{% static "jquery-1.8.2.min.js" %}"></script>
+<script src="{% static "jquery-ui.min.js" %}"></script>
+<script src="{% static "jquery.wijmo-pro.all.3.20131.3.min.js" %}"></script>
+<script src="{% static "jquery.wijmo-open.all.3.20131.3.min.js" %}"></script>
+<script src="{% static "jquery.wijmo.wijspread.all.1.20131.1.min.js" %}"></script>
+<!--this was added for export-->
+<!--Theme-->
+<!--<link href="http://cdn.wijmo.com/themes/aristo/jquery-wijmo.css" rel="stylesheet" type="text/css" />-->
+
+<!--Wijmo Widgets CSS-->
+<!--<link href="http://cdn.wijmo.com/jquery.wijmo-pro.all.3.20151.69.min.css" rel="stylesheet" type="text/css" />-->
+
+<!--RequireJs-->
+<script type="text/javascript" src="http://cdn.wijmo.com/external/require.js"></script>
+<script type="text/javascript">
+    requirejs.config({
+        baseUrl: "http://cdn.wijmo.com/amd-js/3.20151.69",
+            paths: {
+                "jquery": "jquery-1.11.1.min",
+                "jquery-ui": "jquery-ui-1.11.0.custom.min",
+                "jquery.ui": "jquery-ui",
+                "jquery.mousewheel": "jquery.mousewheel.min",
+                "globalize": "globalize.min"
+            }
+    });
+</script>
+
+
+
+
+
+
+<script>
+	$(document).ready(function(){
+		$('#ss').wijspread({sheetCount:1});
+		var spread = $("#ss").wijspread("spread");
+		//spread.useWijmoTheme = true;
+		var sheet = spread.getActiveSheet();
+		
+
+		sheet.isPaintSuspended(true);
+		var arr = $.parseJSON($("#val").html());
+		console.log(arr);
+		//sheet.autoGenerateColumns = true;
+		sheet.setDataSource(arr,false);
+		var sheetArea = $.wijmo.wijspread.SheetArea.colHeader;
+                var rowCount = sheet.getRowCount(sheetArea), colCount = sheet.getColumnCount(sheetArea); 
+		sheet.rowFilter(new $.wijmo.wijspread.HideRowFilter(new $.wijmo.wijspread.Range(-1, -1, -1, -1))); 
+		sheet.isPaintSuspended(false);
+		sheet.setRowCount(50+arr.length);  
+		sheet.setColumnCount(20+colCount);
+		var col_count;
+		for (col_count=0; col_count<20+colCount;col_count++)
+			sheet.autoFitColumn(col_count);
+
+		sheet.isProtected=true;
+
+	});
+
+
+/*
+	function clearRule(sheet) { 
+            var conditionFormats = sheet.getConditionalFormats(); 
+            var count = conditionFormats.count(); 
+            for (var i = 0; i < count; i++) { 
+                conditionFormats.removeRule(conditionFormats.getRule(0)); 
+            } 
+        } 
+  
+       	function btnSearch_Click(event) { 
+            var spread = $("#ss").wijspread("spread"); 
+            var sheet = spread.getActiveSheet(); 
+  
+            clearRule(sheet); 
+            var style = new $.wijmo.wijspread.Style(); 
+            style.foreColor = "red"; 
+            style.font = "bold 12px sans-serif"; 
+            sheet.getConditionalFormats().addSpecificTextRule( 
+                    $.wijmo.wijspread.TextComparisonOperator.Contains 
+                    , $("#search_text").val() 
+                    , style 
+                    , [new $.wijmo.wijspread.Range(0, 0, sheet.getRowCount(), sheet.getColumnCount())] 
+            ); 
+  
+            sheet.invalidateLayout(); 
+            sheet.repaint(); 
+        } 
+  
+        function btnClear_Click(event) { 
+            var spread = $("#ss").wijspread("spread"); 
+            var sheet = spread.getActiveSheet(); 
+            clearRule(sheet); 
+  
+            sheet.invalidateLayout(); 
+            sheet.repaint(); 
+        }*/
+
+ 
+</script>
+
+<!-------------------------------------------------------------------------------->
+<script id="scriptInit" type="text/javascript">
+require(["wijmo.wijgrid", "gridexport"], function () {
+    $(document).ready(function () {
+	 var arr2 = $.parseJSON($("#val").html());
+
+        $("#wijgrid").wijgrid({
+            cellClicked: function (e, args) {
+                alert(args.cell.value());
+            },
+            allowSorting: true,
+            data: arr2
+			
+            
+        });
+    });
+    $("#exportXLS").button().click(function () {
+        var type = $("#exporttype").val();
+        wijmo.exporter.exportGrid({
+            serviceUrl: "http://demos.componentone.com/ASPNET/ExportService/exportapi/grid",
+            grid: $("#wijgrid").data("wijmo-wijgrid"),
+            fileName: "{{form_title}}",
+            exportFileType: wijmo.exporter.ExportFileType[type],
+            excel: {
+                author: "Ninja Code Monkey",
+                autoRowHeight: true
+            }
+        });
+    });
+});
+
+
+function clearRule(sheet) { 
+            var conditionFormats = sheet.getConditionalFormats(); 
+            var count = conditionFormats.count(); 
+            for (var i = 0; i < count; i++) { 
+                conditionFormats.removeRule(conditionFormats.getRule(0)); 
+            } 
+        } 
+
+
+function btnSearch_Click(event) { 
+            var spread = $("#ss").wijspread("spread"); 
+            var sheet = spread.getActiveSheet(); 
+  
+            clearRule(sheet); 
+            var style = new $.wijmo.wijspread.Style(); 
+            style.foreColor = "red"; 
+            style.font = "bold 12px sans-serif"; 
+            sheet.getConditionalFormats().addSpecificTextRule( 
+                    $.wijmo.wijspread.TextComparisonOperator.Contains 
+                    , $("#search_text").val() 
+                    , style 
+                    , [new $.wijmo.wijspread.Range(0, 0, sheet.getRowCount(), sheet.getColumnCount())] 
+            ); 
+  
+            sheet.invalidateLayout(); 
+            sheet.repaint(); 
+        } 
+  
+        function btnClear_Click(event) { 
+            var spread = $("#ss").wijspread("spread"); 
+            var sheet = spread.getActiveSheet(); 
+            clearRule(sheet); 
+  
+            sheet.invalidateLayout(); 
+            sheet.repaint(); 
+        }
+
+</script>
+
+
+
+<!------------------------------------------------------------------------------------------------->
+
+</head>
+<body>
+	<div id = "header" style="align:left"><h2>{{form_title}}</h2></div>
+	 <div id="dowload" style="align:right">
+        <input type="button" value="Export" id="exportXLS"/>
+        <select id="exporttype">
+            <option selected="selected" value="Xls">Export To XLS</option>
+            <option value="Xlsx">Export To XLSX</option>
+            <option value="Csv">Export To CSV</option>
+        </select>
+        </div>
+
+	<div class="option-row"> 
+                    <label style="color:green">Tip: Press dropdown button in column header to sort / filter data</label> 
+        </div>
+	<div id="val" style="display:none">{{response}}</div>
+	<div id="ss" style = "width:100%; height:580px">	</div>
+	<div class="option-row" style="padding:0.4em 0.4em 0"> 
+                    <input type="text" id="search_text" placeholder="Search in spread" /> 
+                    <input type="button" value="Search" title="Search specified content and mark matched items in red" onclick="btnSearch_Click(event)" /> 
+                    <input type="button" value="Clear" title="Clear search result" onclick="btnClear_Click(event)" /> 
+                      
+        </div>
+	<div style="visibility:hidden" ><table style="visibility:hidden"  id="wijgrid"/></div>
+</body>
+</html>
+
+
+
